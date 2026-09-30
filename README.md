@@ -1,39 +1,53 @@
 # 🐳 Docker Commands 
 
-A simple and practical Docker reference containing the most commonly used commands and the basic Docker workflow.
+A practical Docker reference for learning, reviewing, and using the most important Docker commands.
+
+This repository includes:
+
+- Docker basics
+- Dockerfile
+- Images
+- Containers
+- Ports
+- Volumes
+- Networks
+- Logs and debugging
+- Docker Hub
+- Docker Compose
+- Cleanup commands
+- Useful production commands
 
 ---
 
 # 📌 What is Docker?
 
-Docker is a tool that helps you run applications easily on different machines without compatibility issues.
+Docker is a tool that helps package an application with its dependencies so it can run consistently across different environments.
 
-Normally, an application may require:
-
-- A specific programming language version
-- Libraries
-- Dependencies
-- Environment configuration
-
-Docker packages the application and all its dependencies inside a **Container**, so the application can run consistently on different environments.
-
-Basic idea:
+Instead of installing everything manually on every machine, Docker packages:
 
 ```text
 Application
 +
 Dependencies
 +
-Environment
+Runtime
++
+Libraries
++
+Configuration
 =
+Docker Image
+```
+
+Then the image can be started as a:
+
+```text
 Container
 ```
 
 ---
 
-# 🔄 Docker Workflow
-
-The basic Docker workflow is:
+# 🔄 Docker Basic Workflow
 
 ```text
 Write Code
@@ -43,6 +57,8 @@ Create Dockerfile
 Build Docker Image
    ↓
 Run Container
+   ↓
+Test Application
    ↓
 Tag Image
    ↓
@@ -55,259 +71,11 @@ Run Container
 
 ---
 
-# 1️⃣ Create a Dockerfile
-
-A `Dockerfile` contains the instructions Docker uses to build the application image.
-
-Example for a Node.js application:
-
-```dockerfile
-FROM node:18
-
-WORKDIR /app
-
-COPY . .
-
-RUN npm install
-
-CMD ["node", "server.js"]
-```
-
-### Explanation
-
-```dockerfile
-FROM node:18
-```
-
-Uses Node.js version 18 as the base image.
-
----
-
-```dockerfile
-WORKDIR /app
-```
-
-Creates and sets `/app` as the working directory inside the container.
-
----
-
-```dockerfile
-COPY . .
-```
-
-Copies the application files from the current directory into the container.
-
----
-
-```dockerfile
-RUN npm install
-```
-
-Installs the application dependencies.
-
----
-
-```dockerfile
-CMD ["node", "server.js"]
-```
-
-Defines the command that runs when the container starts.
-
----
-
-# 2️⃣ Build Docker Image
-
-To build a Docker image from the Dockerfile:
-
-```bash
-docker build -t myapp .
-```
-
-### Explanation
-
-```text
-docker build
-```
-
-Builds a Docker image.
-
-```text
--t myapp
-```
-
-Assigns the name `myapp` to the image.
-
-```text
-.
-```
-
-Tells Docker to use the Dockerfile in the current directory.
-
-After running the command, Docker stores the image locally on your machine.
-
----
-
-# 3️⃣ Run Docker Container
-
-To create and run a container from the image:
-
-```bash
-docker run -d -p 3000:3000 myapp
-```
-
-### Explanation
-
-```text
-docker run
-```
-
-Creates and starts a container.
-
-```text
--d
-```
-
-Runs the container in the background.
-
-`d` means:
-
-```text
-detached mode
-```
-
----
-
-```text
--p 3000:3000
-```
-
-Maps the host machine port to the container port.
-
-Format:
-
-```text
-HOST_PORT:CONTAINER_PORT
-```
-
-Example:
-
-```text
-3000:3000
-```
-
-means:
-
-```text
-Your Machine Port 3000
-        ↓
-Container Port 3000
-```
-
----
-
-```text
-myapp
-```
-
-The Docker image name.
-
-If the application is listening on port `3000`, you can open:
-
-```text
-http://localhost:3000
-```
-
----
-
-# 4️⃣ Login to Docker Hub
-
-Before pushing an image to Docker Hub, login to your account:
-
-```bash
-docker login
-```
-
-Docker will ask for your Docker Hub credentials.
-
----
-
-# 5️⃣ Tag Docker Image
-
-Before pushing the image, tag it using your Docker Hub username.
-
-```bash
-docker tag myapp myusername/myapp
-```
-
-Example:
-
-```bash
-docker tag myapp rasha/myapp
-```
-
-General format:
-
-```bash
-docker tag LOCAL_IMAGE DOCKERHUB_USERNAME/IMAGE_NAME
-```
-
----
-
-# 6️⃣ Push Docker Image to Docker Hub
-
-Upload the image to Docker Hub:
-
-```bash
-docker push myusername/myapp
-```
-
-Example:
-
-```bash
-docker push rasha/myapp
-```
-
-Now the image can be downloaded from another machine or server.
-
----
-
-# 7️⃣ Pull Docker Image
-
-To download an image from Docker Hub:
-
-```bash
-docker pull myusername/myapp
-```
-
-Example:
-
-```bash
-docker pull rasha/myapp
-```
-
----
-
-# 8️⃣ Run Image on Another Machine
-
-After pulling the image:
-
-```bash
-docker run -d -p 3000:3000 myusername/myapp
-```
-
-Example:
-
-```bash
-docker run -d -p 3000:3000 rasha/myapp
-```
-
----
-
-# 🧠 Important Docker Concepts
+# 🧠 Core Docker Concepts
 
 ## Dockerfile
 
-A file containing instructions used to build a Docker image.
+A `Dockerfile` contains instructions Docker uses to build an image.
 
 ```text
 Dockerfile
@@ -323,21 +91,21 @@ Docker Image
 
 A Docker Image is a packaged version of the application.
 
-It contains:
+It may include:
 
 - Application code
-- Dependencies
 - Runtime
-- Required libraries
-- Environment configuration
+- Dependencies
+- Libraries
+- Configuration
 
-An image itself is not a running application.
+An image is not running by itself.
 
 ---
 
 ## Docker Container
 
-A Container is a running instance of a Docker Image.
+A Container is a running instance of an Image.
 
 ```text
 Image
@@ -347,9 +115,7 @@ docker run
 Container
 ```
 
-You can create multiple containers from the same image.
-
-Example:
+One image can create multiple containers:
 
 ```text
 myapp image
@@ -365,8 +131,6 @@ Container 3
 
 Docker Hub is a registry used to store and share Docker Images.
 
-Example workflow:
-
 ```text
 Local Machine
      ↓
@@ -376,60 +140,238 @@ Docker Hub
      ↓
 docker pull
      ↓
-Another Machine / Server
+Another Machine
 ```
 
 ---
 
-# 📦 Image vs Container
+# 🐳 Dockerfile Example
 
-| Docker Image | Docker Container |
-|---|---|
-| Package | Running application |
-| Read-only template | Runtime instance |
-| Created using `docker build` | Created using `docker run` |
-| Can be stored in Docker Hub | Runs on a machine |
-| One image can create many containers | Each container is an instance of an image |
+Example for a Node.js application:
+
+```dockerfile
+FROM node:18
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+
+CMD ["node", "server.js"]
+```
 
 ---
 
-# 🛠️ Common Docker Commands
+# 📘 Important Dockerfile Instructions
 
-## Check Docker Version
+## FROM
+
+Defines the base image.
+
+```dockerfile
+FROM node:18
+```
+
+Example:
+
+```dockerfile
+FROM python:3.12
+```
+
+---
+
+## WORKDIR
+
+Sets the working directory inside the container.
+
+```dockerfile
+WORKDIR /app
+```
+
+---
+
+## COPY
+
+Copies files into the image.
+
+```dockerfile
+COPY . .
+```
+
+Better example:
+
+```dockerfile
+COPY package*.json ./
+RUN npm install
+COPY . .
+```
+
+---
+
+## RUN
+
+Runs a command while building the image.
+
+```dockerfile
+RUN npm install
+```
+
+Another example:
+
+```dockerfile
+RUN pip install -r requirements.txt
+```
+
+---
+
+## CMD
+
+Defines the default command when the container starts.
+
+```dockerfile
+CMD ["node", "server.js"]
+```
+
+---
+
+## ENTRYPOINT
+
+Defines the main executable.
+
+```dockerfile
+ENTRYPOINT ["node"]
+```
+
+Can be combined with:
+
+```dockerfile
+CMD ["server.js"]
+```
+
+---
+
+## ENV
+
+Defines environment variables inside the image.
+
+```dockerfile
+ENV NODE_ENV=production
+```
+
+---
+
+## ARG
+
+Defines build-time variables.
+
+```dockerfile
+ARG APP_VERSION=1.0
+```
+
+Build with:
 
 ```bash
-docker --version
+docker build --build-arg APP_VERSION=2.0 -t myapp .
 ```
 
-Example output:
+---
+
+## EXPOSE
+
+Documents the port used by the application.
+
+```dockerfile
+EXPOSE 3000
+```
+
+Important:
+
+`EXPOSE` does not automatically publish the port.
+
+You still need:
+
+```bash
+docker run -p 3000:3000 myapp
+```
+
+---
+
+## USER
+
+Runs the application as a specific user.
+
+```dockerfile
+USER node
+```
+
+This can improve security.
+
+---
+
+## HEALTHCHECK
+
+Checks whether the application is healthy.
+
+Example:
+
+```dockerfile
+HEALTHCHECK CMD curl --fail http://localhost:3000 || exit 1
+```
+
+---
+
+# 🏗️ Build Docker Image
+
+Build an image:
+
+```bash
+docker build -t myapp .
+```
+
+Explanation:
 
 ```text
-Docker version 27.x.x
+docker build
+```
+
+Build the image.
+
+```text
+-t myapp
+```
+
+Set image name/tag.
+
+```text
+.
+```
+
+Use the current directory as build context.
+
+---
+
+# 🏷️ Build Image with Version
+
+```bash
+docker build -t myapp:1.0 .
+```
+
+Another version:
+
+```bash
+docker build -t myapp:2.0 .
 ```
 
 ---
 
-# 📋 List Running Containers
+# ♻️ Build Without Cache
 
 ```bash
-docker ps
+docker build --no-cache -t myapp .
 ```
 
-Shows only currently running containers.
-
----
-
-# 📋 List All Containers
-
-```bash
-docker ps -a
-```
-
-Shows:
-
-- Running containers
-- Stopped containers
-- Exited containers
+Useful when Docker cache causes issues.
 
 ---
 
@@ -439,7 +381,7 @@ Shows:
 docker images
 ```
 
-You can also use:
+Or:
 
 ```bash
 docker image ls
@@ -447,202 +389,73 @@ docker image ls
 
 ---
 
-# ▶️ Start a Container
+# 🔎 Inspect Image
 
 ```bash
-docker start CONTAINER_ID
-```
-
-Example:
-
-```bash
-docker start 12ab34cd56ef
-```
-
-You can also use the container name:
-
-```bash
-docker start my-container
+docker image inspect myapp
 ```
 
 ---
 
-# ⏹️ Stop a Container
+# 📚 Image History
+
+See image layers:
 
 ```bash
-docker stop CONTAINER_ID
-```
-
-Example:
-
-```bash
-docker stop 12ab34cd56ef
-```
-
-Or:
-
-```bash
-docker stop my-container
+docker history myapp
 ```
 
 ---
 
-# 🔄 Restart a Container
-
-```bash
-docker restart CONTAINER_ID
-```
-
-Example:
-
-```bash
-docker restart my-container
-```
-
----
-
-# 🗑️ Remove a Container
-
-The container should normally be stopped first.
-
-```bash
-docker rm CONTAINER_ID
-```
-
-Example:
-
-```bash
-docker rm my-container
-```
-
----
-
-# 🗑️ Force Remove a Running Container
-
-```bash
-docker rm -f CONTAINER_ID
-```
-
-Example:
-
-```bash
-docker rm -f my-container
-```
-
----
-
-# 🗑️ Remove Docker Image
-
-```bash
-docker rmi IMAGE_ID
-```
-
-Or:
-
-```bash
-docker rmi IMAGE_NAME
-```
-
-Example:
+# 🗑️ Remove Image
 
 ```bash
 docker rmi myapp
 ```
 
+Or:
+
+```bash
+docker image rm myapp
+```
+
+Force removal:
+
+```bash
+docker rmi -f myapp
+```
+
 ---
 
-# 📝 View Container Logs
+# ▶️ Run Docker Container
 
 ```bash
-docker logs CONTAINER_ID
+docker run -d -p 3000:3000 myapp
 ```
 
-Example:
-
-```bash
-docker logs my-container
-```
-
----
-
-# 📝 Follow Container Logs
-
-To keep watching the logs in real time:
-
-```bash
-docker logs -f CONTAINER_ID
-```
-
-Example:
-
-```bash
-docker logs -f my-container
-```
-
-Press:
+Explanation:
 
 ```text
-Ctrl + C
+-d
 ```
 
-to stop following the logs.
+Run in detached mode.
 
----
-
-# 💻 Enter a Running Container
-
-For containers that have `bash`:
-
-```bash
-docker exec -it CONTAINER_ID bash
+```text
+-p 3000:3000
 ```
 
-Example:
+Map ports.
 
-```bash
-docker exec -it my-container bash
-```
+Format:
 
-For lightweight containers that do not contain `bash`, you may use:
-
-```bash
-docker exec -it my-container sh
+```text
+HOST_PORT:CONTAINER_PORT
 ```
 
 ---
 
-# 🔍 Inspect a Container
-
-```bash
-docker inspect CONTAINER_ID
-```
-
-Example:
-
-```bash
-docker inspect my-container
-```
-
-This shows detailed information such as:
-
-- IP address
-- Network
-- Environment variables
-- Mounts
-- Ports
-- Container configuration
-
----
-
-# 🏷️ Give a Container a Name
-
-Instead of letting Docker generate a random name:
-
-```bash
-docker run --name my-container myapp
-```
-
-Example with ports:
+# 🏷️ Run Container with Name
 
 ```bash
 docker run -d --name my-container -p 3000:3000 myapp
@@ -654,7 +467,31 @@ Now you can use:
 docker stop my-container
 ```
 
-instead of using the container ID.
+instead of the container ID.
+
+---
+
+# 🧪 Run and Automatically Remove Container
+
+```bash
+docker run --rm myapp
+```
+
+Useful for temporary containers.
+
+---
+
+# 💻 Run Interactive Container
+
+```bash
+docker run -it myapp sh
+```
+
+If bash is available:
+
+```bash
+docker run -it myapp bash
+```
 
 ---
 
@@ -672,15 +509,7 @@ Example:
 docker run -p 8080:3000 myapp
 ```
 
-This means:
-
-```text
-localhost:8080
-      ↓
-Container:3000
-```
-
-So you would open:
+Then access:
 
 ```text
 http://localhost:8080
@@ -688,15 +517,229 @@ http://localhost:8080
 
 ---
 
-# 🌱 Environment Variables
-
-Pass environment variables when starting the container:
+# 📋 List Running Containers
 
 ```bash
-docker run -e VARIABLE_NAME=value IMAGE_NAME
+docker ps
 ```
 
-Example:
+---
+
+# 📋 List All Containers
+
+```bash
+docker ps -a
+```
+
+---
+
+# ▶️ Start Container
+
+```bash
+docker start my-container
+```
+
+---
+
+# ⏹️ Stop Container
+
+```bash
+docker stop my-container
+```
+
+`docker stop` allows the application some time to shut down gracefully.
+
+---
+
+# 💥 Kill Container Immediately
+
+```bash
+docker kill my-container
+```
+
+Use when the container does not stop normally.
+
+---
+
+# 🔄 Restart Container
+
+```bash
+docker restart my-container
+```
+
+---
+
+# ⏸️ Pause Container
+
+```bash
+docker pause my-container
+```
+
+Resume:
+
+```bash
+docker unpause my-container
+```
+
+---
+
+# 🗑️ Remove Container
+
+```bash
+docker rm my-container
+```
+
+Force remove:
+
+```bash
+docker rm -f my-container
+```
+
+---
+
+# 🏷️ Rename Container
+
+```bash
+docker rename old-name new-name
+```
+
+---
+
+# 🔍 Inspect Container
+
+```bash
+docker inspect my-container
+```
+
+Useful for:
+
+- IP address
+- Ports
+- Environment variables
+- Volumes
+- Networks
+- Configuration
+
+---
+
+# 🚪 Show Container Ports
+
+```bash
+docker port my-container
+```
+
+---
+
+# ⚙️ Show Running Processes
+
+```bash
+docker top my-container
+```
+
+---
+
+# 🧩 Container File Changes
+
+```bash
+docker diff my-container
+```
+
+Shows files changed inside the container.
+
+---
+
+# 📝 View Logs
+
+```bash
+docker logs my-container
+```
+
+---
+
+# 📝 Follow Logs
+
+```bash
+docker logs -f my-container
+```
+
+---
+
+# 📝 Last 100 Log Lines
+
+```bash
+docker logs --tail 100 my-container
+```
+
+---
+
+# 📝 Logs Since a Specific Time
+
+```bash
+docker logs --since 10m my-container
+```
+
+---
+
+# 💻 Enter Running Container
+
+```bash
+docker exec -it my-container bash
+```
+
+If bash does not exist:
+
+```bash
+docker exec -it my-container sh
+```
+
+---
+
+# 🔗 Attach to Main Process
+
+```bash
+docker attach my-container
+```
+
+Be careful because this connects directly to the main process.
+
+---
+
+# ⏳ Wait for Container to Exit
+
+```bash
+docker wait my-container
+```
+
+Returns the exit code.
+
+---
+
+# 📊 Monitor Resource Usage
+
+```bash
+docker stats
+```
+
+Shows:
+
+- CPU
+- Memory
+- Network
+- Processes
+
+---
+
+# 📄 Container Metadata
+
+```bash
+docker container inspect my-container
+```
+
+---
+
+# 🌱 Environment Variables
+
+Pass one variable:
 
 ```bash
 docker run -e NODE_ENV=production myapp
@@ -715,14 +758,12 @@ docker run \
 
 # 📄 Environment File
 
-You can also load environment variables from a file.
-
 Example `.env`:
 
 ```env
 NODE_ENV=production
 PORT=3000
-DATABASE_HOST=localhost
+DATABASE_HOST=db
 ```
 
 Run:
@@ -735,41 +776,39 @@ docker run --env-file .env myapp
 
 # 💾 Docker Volumes
 
-Containers are temporary.
+Containers can be deleted.
 
-If a container is deleted, data stored inside it may also be deleted.
+Important data should not live only inside a container.
 
-Docker Volumes allow data to persist.
+Docker Volumes persist data.
 
-Create a volume:
+---
+
+# ➕ Create Volume
 
 ```bash
 docker volume create my-volume
 ```
 
-List volumes:
+---
+
+# 📋 List Volumes
 
 ```bash
 docker volume ls
 ```
 
-Inspect a volume:
+---
+
+# 🔎 Inspect Volume
 
 ```bash
 docker volume inspect my-volume
 ```
 
-Remove a volume:
-
-```bash
-docker volume rm my-volume
-```
-
 ---
 
-# 💾 Run Container with Volume
-
-Example:
+# ▶️ Run Container with Volume
 
 ```bash
 docker run -v my-volume:/app/data myapp
@@ -780,54 +819,44 @@ Meaning:
 ```text
 Docker Volume
 my-volume
-     ↓
+    ↓
 Container
 /app/data
 ```
 
 ---
 
+# 🗑️ Remove Volume
+
+```bash
+docker volume rm my-volume
+```
+
+---
+
+# 🧹 Remove Unused Volumes
+
+```bash
+docker volume prune
+```
+
+---
+
 # 📂 Bind Mount
 
-A bind mount connects a folder from your machine directly to the container.
-
-Example:
+A bind mount connects a local folder directly to the container.
 
 ```bash
 docker run -v $(pwd):/app myapp
 ```
 
-Useful during development because code changes on your machine can appear inside the container.
+Useful during development.
 
 ---
 
 # 🌐 Docker Networks
 
-List networks:
-
-```bash
-docker network ls
-```
-
-Create a network:
-
-```bash
-docker network create my-network
-```
-
-Run container inside a network:
-
-```bash
-docker run --network my-network myapp
-```
-
-Remove network:
-
-```bash
-docker network rm my-network
-```
-
-Docker networks are especially useful when multiple containers need to communicate.
+Networks allow containers to communicate.
 
 Example:
 
@@ -841,42 +870,236 @@ Database Container
 
 ---
 
-# 📊 Container Resource Usage
-
-To see CPU and memory usage:
+# ➕ Create Network
 
 ```bash
-docker stats
-```
-
-Output includes:
-
-```text
-CPU
-Memory
-Network
-Processes
+docker network create my-network
 ```
 
 ---
 
-# 📁 Copy Files Between Host and Container
-
-Copy file from host to container:
+# 📋 List Networks
 
 ```bash
-docker cp file.txt CONTAINER_ID:/app/file.txt
-```
-
-Copy file from container to host:
-
-```bash
-docker cp CONTAINER_ID:/app/file.txt .
+docker network ls
 ```
 
 ---
 
-# 🧹 Docker Cleanup Commands
+# 🔎 Inspect Network
+
+```bash
+docker network inspect my-network
+```
+
+---
+
+# ▶️ Run Container in Network
+
+```bash
+docker run --network my-network myapp
+```
+
+---
+
+# 🔗 Connect Container to Network
+
+```bash
+docker network connect my-network my-container
+```
+
+---
+
+# 🔌 Disconnect Container from Network
+
+```bash
+docker network disconnect my-network my-container
+```
+
+---
+
+# 🗑️ Remove Network
+
+```bash
+docker network rm my-network
+```
+
+---
+
+# 🧹 Remove Unused Networks
+
+```bash
+docker network prune
+```
+
+---
+
+# 📁 Copy Files
+
+Copy from host to container:
+
+```bash
+docker cp file.txt my-container:/app/file.txt
+```
+
+Copy from container to host:
+
+```bash
+docker cp my-container:/app/file.txt .
+```
+
+---
+
+# 🔐 Docker Hub Login
+
+```bash
+docker login
+```
+
+---
+
+# 🏷️ Tag Image
+
+```bash
+docker tag myapp myusername/myapp
+```
+
+With version:
+
+```bash
+docker tag myapp:1.0 myusername/myapp:1.0
+```
+
+---
+
+# ⬆️ Push Image
+
+```bash
+docker push myusername/myapp
+```
+
+Version:
+
+```bash
+docker push myusername/myapp:1.0
+```
+
+---
+
+# ⬇️ Pull Image
+
+```bash
+docker pull myusername/myapp
+```
+
+Version:
+
+```bash
+docker pull myusername/myapp:1.0
+```
+
+---
+
+# 🌍 Run Image on Another Machine
+
+```bash
+docker pull myusername/myapp
+```
+
+Then:
+
+```bash
+docker run -d -p 3000:3000 myusername/myapp
+```
+
+---
+
+# 💾 Save Docker Image to File
+
+```bash
+docker save -o myapp.tar myapp
+```
+
+---
+
+# 📥 Load Docker Image from File
+
+```bash
+docker load -i myapp.tar
+```
+
+---
+
+# 📦 Export Container Filesystem
+
+```bash
+docker export my-container > container.tar
+```
+
+---
+
+# 📥 Import Filesystem as Image
+
+```bash
+docker import container.tar my-new-image
+```
+
+---
+
+# 🧬 Commit Container to Image
+
+```bash
+docker commit my-container my-new-image
+```
+
+This exists, but it is usually better to define changes in a Dockerfile.
+
+---
+
+# ℹ️ Docker Information
+
+```bash
+docker info
+```
+
+Shows:
+
+- Docker Engine information
+- Storage driver
+- Number of images
+- Number of containers
+- Runtime
+- Networks
+
+---
+
+# 📅 Docker Events
+
+```bash
+docker events
+```
+
+Shows Docker events in real time.
+
+---
+
+# 🌍 Docker Contexts
+
+List contexts:
+
+```bash
+docker context ls
+```
+
+Switch context:
+
+```bash
+docker context use CONTEXT_NAME
+```
+
+---
+
+# 🧹 Docker Cleanup
 
 ## Remove Stopped Containers
 
@@ -890,6 +1113,14 @@ docker container prune
 
 ```bash
 docker image prune
+```
+
+---
+
+## Remove Build Cache
+
+```bash
+docker builder prune
 ```
 
 ---
@@ -916,13 +1147,21 @@ docker volume prune
 docker system prune
 ```
 
-Be careful when using cleanup commands because Docker may remove unused resources.
+---
+
+## More Aggressive Cleanup
+
+```bash
+docker system prune -a
+```
+
+Be careful.
+
+This removes unused images, not only dangling images.
 
 ---
 
-# 🔎 Docker Disk Usage
-
-Check how much space Docker is using:
+# 💽 Docker Disk Usage
 
 ```bash
 docker system df
@@ -930,81 +1169,196 @@ docker system df
 
 ---
 
-# ⚡ Build Without Cache
+# 🧰 Docker Compose
 
-Sometimes Docker uses cached layers.
-
-To force a fresh build:
-
-```bash
-docker build --no-cache -t myapp .
-```
-
----
-
-# 🏷️ Docker Image Versions
-
-You can tag images with versions.
-
-Example:
-
-```bash
-docker build -t myapp:1.0 .
-```
-
-Another version:
-
-```bash
-docker build -t myapp:2.0 .
-```
-
-List them:
-
-```bash
-docker images
-```
+Docker Compose is used to manage multiple containers together.
 
 Example:
 
 ```text
-REPOSITORY   TAG
-myapp        1.0
-myapp        2.0
+Backend
+Database
+Redis
+Kafka
+```
+
+Instead of starting every container manually, Docker Compose allows you to manage them from one configuration file.
+
+---
+
+# 📄 Basic compose.yaml Example
+
+```yaml
+services:
+
+  backend:
+    build: .
+    ports:
+      - "3000:3000"
+
+  database:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: appdb
 ```
 
 ---
 
-# 🚀 Push Image with Version
-
-Tag:
+# ▶️ Start Docker Compose Services
 
 ```bash
-docker tag myapp:1.0 myusername/myapp:1.0
-```
-
-Push:
-
-```bash
-docker push myusername/myapp:1.0
-```
-
-Pull:
-
-```bash
-docker pull myusername/myapp:1.0
-```
-
-Run:
-
-```bash
-docker run myusername/myapp:1.0
+docker compose up
 ```
 
 ---
 
-# 🔥 Complete Example
+# ▶️ Start in Background
 
-Assume we have:
+```bash
+docker compose up -d
+```
+
+---
+
+# 🏗️ Build Services
+
+```bash
+docker compose build
+```
+
+---
+
+# 🔄 Build and Start
+
+```bash
+docker compose up --build
+```
+
+---
+
+# ⏹️ Stop and Remove Services
+
+```bash
+docker compose down
+```
+
+---
+
+# 📋 List Compose Services
+
+```bash
+docker compose ps
+```
+
+---
+
+# 📝 View Compose Logs
+
+```bash
+docker compose logs
+```
+
+---
+
+# 📝 Follow Compose Logs
+
+```bash
+docker compose logs -f
+```
+
+---
+
+# 📝 Logs for Specific Service
+
+```bash
+docker compose logs backend
+```
+
+---
+
+# 💻 Enter Compose Service
+
+```bash
+docker compose exec backend bash
+```
+
+Or:
+
+```bash
+docker compose exec backend sh
+```
+
+---
+
+# 🔄 Restart Services
+
+```bash
+docker compose restart
+```
+
+Specific service:
+
+```bash
+docker compose restart backend
+```
+
+---
+
+# ⬇️ Pull Compose Images
+
+```bash
+docker compose pull
+```
+
+---
+
+# ⏹️ Stop Without Removing
+
+```bash
+docker compose stop
+```
+
+---
+
+# ▶️ Start Existing Services
+
+```bash
+docker compose start
+```
+
+---
+
+# 🗑️ Remove Stopped Compose Containers
+
+```bash
+docker compose rm
+```
+
+---
+
+# 📈 Scale Service
+
+Example:
+
+```bash
+docker compose up -d --scale backend=3
+```
+
+Creates:
+
+```text
+backend-1
+backend-2
+backend-3
+```
+
+---
+
+# 🐳 Complete Docker Workflow Example
+
+Project:
 
 ```text
 my-project/
@@ -1022,9 +1376,13 @@ FROM node:18
 
 WORKDIR /app
 
-COPY . .
+COPY package*.json ./
 
 RUN npm install
+
+COPY . .
+
+EXPOSE 3000
 
 CMD ["node", "server.js"]
 ```
@@ -1050,12 +1408,15 @@ docker images
 ## Step 3 — Run Container
 
 ```bash
-docker run -d --name my-container -p 3000:3000 myapp
+docker run -d \
+  --name my-container \
+  -p 3000:3000 \
+  myapp
 ```
 
 ---
 
-## Step 4 — Check Running Container
+## Step 4 — Check Container
 
 ```bash
 docker ps
@@ -1063,13 +1424,7 @@ docker ps
 
 ---
 
-## Step 5 — Check Logs
-
-```bash
-docker logs my-container
-```
-
-Or follow the logs:
+## Step 5 — View Logs
 
 ```bash
 docker logs -f my-container
@@ -1085,7 +1440,15 @@ http://localhost:3000
 
 ---
 
-## Step 7 — Stop Container
+## Step 7 — Enter Container
+
+```bash
+docker exec -it my-container sh
+```
+
+---
+
+## Step 8 — Stop Container
 
 ```bash
 docker stop my-container
@@ -1093,7 +1456,7 @@ docker stop my-container
 
 ---
 
-## Step 8 — Start Container Again
+## Step 9 — Start Again
 
 ```bash
 docker start my-container
@@ -1101,17 +1464,16 @@ docker start my-container
 
 ---
 
-## Step 9 — Remove Container
+## Step 10 — Remove Container
 
 ```bash
 docker stop my-container
-
 docker rm my-container
 ```
 
 ---
 
-## Step 10 — Login to Docker Hub
+## Step 11 — Login to Docker Hub
 
 ```bash
 docker login
@@ -1119,7 +1481,7 @@ docker login
 
 ---
 
-## Step 11 — Tag Image
+## Step 12 — Tag Image
 
 ```bash
 docker tag myapp myusername/myapp
@@ -1127,7 +1489,7 @@ docker tag myapp myusername/myapp
 
 ---
 
-## Step 12 — Push Image
+## Step 13 — Push Image
 
 ```bash
 docker push myusername/myapp
@@ -1135,7 +1497,7 @@ docker push myusername/myapp
 
 ---
 
-## Step 13 — Pull on Another Machine
+## Step 14 — Pull on Another Machine
 
 ```bash
 docker pull myusername/myapp
@@ -1143,10 +1505,74 @@ docker pull myusername/myapp
 
 ---
 
-## Step 14 — Run on Another Machine
+## Step 15 — Run on Another Machine
 
 ```bash
-docker run -d -p 3000:3000 myusername/myapp
+docker run -d \
+  -p 3000:3000 \
+  myusername/myapp
+```
+
+---
+
+# 🧰 Complete Docker Compose Example
+
+```yaml
+services:
+
+  backend:
+    build: .
+    container_name: backend
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_HOST: database
+    depends_on:
+      - database
+    networks:
+      - app-network
+
+  database:
+    image: postgres:16
+    container_name: database
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: appdb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+
+networks:
+  app-network:
+```
+
+Start:
+
+```bash
+docker compose up -d
+```
+
+Check:
+
+```bash
+docker compose ps
+```
+
+Logs:
+
+```bash
+docker compose logs -f
+```
+
+Stop:
+
+```bash
+docker compose down
 ```
 
 ---
@@ -1155,46 +1581,81 @@ docker run -d -p 3000:3000 myusername/myapp
 
 | Task | Command |
 |---|---|
-| Check Docker version | `docker --version` |
+| Docker version | `docker --version` |
+| Docker info | `docker info` |
 | Build image | `docker build -t myapp .` |
+| Build without cache | `docker build --no-cache -t myapp .` |
 | List images | `docker images` |
+| Inspect image | `docker image inspect myapp` |
+| Image history | `docker history myapp` |
+| Remove image | `docker rmi myapp` |
 | Run container | `docker run myapp` |
-| Run in background | `docker run -d myapp` |
+| Run background | `docker run -d myapp` |
+| Run interactive | `docker run -it myapp sh` |
+| Auto remove | `docker run --rm myapp` |
 | Map ports | `docker run -p 3000:3000 myapp` |
 | Name container | `docker run --name my-container myapp` |
 | Running containers | `docker ps` |
 | All containers | `docker ps -a` |
-| Stop container | `docker stop CONTAINER_ID` |
-| Start container | `docker start CONTAINER_ID` |
-| Restart container | `docker restart CONTAINER_ID` |
-| Remove container | `docker rm CONTAINER_ID` |
-| Remove image | `docker rmi IMAGE_ID` |
-| View logs | `docker logs CONTAINER_ID` |
-| Follow logs | `docker logs -f CONTAINER_ID` |
-| Enter container | `docker exec -it CONTAINER_ID bash` |
-| Inspect container | `docker inspect CONTAINER_ID` |
-| Docker statistics | `docker stats` |
-| Login to Docker Hub | `docker login` |
+| Start container | `docker start my-container` |
+| Stop container | `docker stop my-container` |
+| Kill container | `docker kill my-container` |
+| Restart container | `docker restart my-container` |
+| Pause container | `docker pause my-container` |
+| Resume container | `docker unpause my-container` |
+| Remove container | `docker rm my-container` |
+| View logs | `docker logs my-container` |
+| Follow logs | `docker logs -f my-container` |
+| Enter container | `docker exec -it my-container sh` |
+| Inspect container | `docker inspect my-container` |
+| Container ports | `docker port my-container` |
+| Resource usage | `docker stats` |
+| Create volume | `docker volume create my-volume` |
+| List volumes | `docker volume ls` |
+| Inspect volume | `docker volume inspect my-volume` |
+| Create network | `docker network create my-network` |
+| List networks | `docker network ls` |
+| Inspect network | `docker network inspect my-network` |
+| Docker Hub login | `docker login` |
 | Tag image | `docker tag myapp username/myapp` |
 | Push image | `docker push username/myapp` |
 | Pull image | `docker pull username/myapp` |
-| List volumes | `docker volume ls` |
-| List networks | `docker network ls` |
 | Docker disk usage | `docker system df` |
-| Cleanup unused resources | `docker system prune` |
+| Cleanup | `docker system prune` |
 
 ---
 
-# 🧠 Commands to Remember First
+# 📌 Quick Docker Compose Cheat Sheet
 
-If you are starting with Docker, focus first on these commands:
+| Task | Command |
+|---|---|
+| Start services | `docker compose up` |
+| Start background | `docker compose up -d` |
+| Build services | `docker compose build` |
+| Build and start | `docker compose up --build` |
+| List services | `docker compose ps` |
+| Logs | `docker compose logs` |
+| Follow logs | `docker compose logs -f` |
+| Stop services | `docker compose stop` |
+| Start existing services | `docker compose start` |
+| Restart services | `docker compose restart` |
+| Enter service | `docker compose exec SERVICE sh` |
+| Pull images | `docker compose pull` |
+| Stop and remove | `docker compose down` |
+| Remove stopped containers | `docker compose rm` |
+
+---
+
+# 🎯 Commands to Learn First
+
+If you are still learning Docker, focus on these first:
 
 ```bash
 docker build -t myapp .
 ```
 
 ```bash
-docker run -d -p 3000:3000 myapp
+docker run -d --name my-container -p 3000:3000 myapp
 ```
 
 ```bash
@@ -1206,7 +1667,15 @@ docker ps -a
 ```
 
 ```bash
-docker logs my-container
+docker images
+```
+
+```bash
+docker logs -f my-container
+```
+
+```bash
+docker exec -it my-container sh
 ```
 
 ```bash
@@ -1219,10 +1688,6 @@ docker start my-container
 
 ```bash
 docker rm my-container
-```
-
-```bash
-docker images
 ```
 
 ```bash
@@ -1245,44 +1710,215 @@ docker push myusername/myapp
 docker pull myusername/myapp
 ```
 
+And for Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+```bash
+docker compose ps
+```
+
+```bash
+docker compose logs -f
+```
+
+```bash
+docker compose down
+```
+
 ---
 
-# 🎯 Basic Docker Flow to Remember
+# 🧠 Docker Debugging Flow
+
+When an application does not work:
 
 ```text
-1. Write Application
+Container not running?
         ↓
-2. Create Dockerfile
+docker ps -a
         ↓
-3. Build Image
+Check logs
         ↓
-docker build -t myapp .
+docker logs CONTAINER
         ↓
-4. Run Container
+Check configuration
         ↓
-docker run -d -p 3000:3000 myapp
+docker inspect CONTAINER
         ↓
-5. Test Application
+Enter container
         ↓
-6. Login to Docker Hub
+docker exec -it CONTAINER sh
         ↓
-docker login
+Check ports
         ↓
-7. Tag Image
+docker port CONTAINER
         ↓
-docker tag myapp myusername/myapp
+Check resources
         ↓
-8. Push Image
-        ↓
-docker push myusername/myapp
-        ↓
-9. Pull on Another Machine
-        ↓
-docker pull myusername/myapp
-        ↓
-10. Run
-        ↓
-docker run -d -p 3000:3000 myusername/myapp
+docker stats
+```
+
+---
+
+# 🔐 Basic Best Practices
+
+## Use Image Versions
+
+Prefer:
+
+```dockerfile
+FROM node:18
+```
+
+instead of an uncontrolled image version.
+
+---
+
+## Avoid Running as Root
+
+Use:
+
+```dockerfile
+USER node
+```
+
+when possible.
+
+---
+
+## Keep Images Small
+
+Avoid unnecessary dependencies.
+
+---
+
+## Use `.dockerignore`
+
+Example:
+
+```text
+node_modules
+.git
+.env
+*.log
+```
+
+This prevents unnecessary files from being copied into the image.
+
+---
+
+## Do Not Put Secrets in Dockerfile
+
+Avoid:
+
+```dockerfile
+ENV DATABASE_PASSWORD=mysecretpassword
+```
+
+Prefer environment variables or secret management.
+
+---
+
+## Use Multi-Stage Builds When Needed
+
+Example:
+
+```dockerfile
+FROM node:18 AS builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+RUN npm run build
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app/dist ./dist
+
+CMD ["node", "dist/server.js"]
+```
+
+---
+
+# 🏗️ Docker in System Architecture
+
+Docker allows the same application image to create multiple containers.
+
+Example:
+
+```text
+             Load Balancer
+                  |
+       -----------------------
+       |          |          |
+   Container   Container   Container
+       1           2          3
+       \           |         /
+              Database
+```
+
+This is commonly used with horizontal scaling.
+
+---
+
+# 🧩 Docker vs Image vs Container
+
+```text
+Dockerfile
+   ↓
+Build
+   ↓
+Image
+   ↓
+Run
+   ↓
+Container
+```
+
+Simple definition:
+
+```text
+Dockerfile = Instructions
+Image      = Package
+Container  = Running Instance
+```
+
+---
+
+# 🚀 Learning Roadmap
+
+After mastering these commands:
+
+```text
+Docker Fundamentals
+       ↓
+Dockerfile
+       ↓
+Images & Containers
+       ↓
+Volumes
+       ↓
+Networks
+       ↓
+Docker Compose
+       ↓
+Multi-Stage Builds
+       ↓
+Health Checks
+       ↓
+Docker Security
+       ↓
+CI/CD
+       ↓
+Container Orchestration
+       ↓
+Kubernetes
 ```
 
 ---
@@ -1295,34 +1931,18 @@ This repository is my personal Docker reference for reviewing:
 - Docker Images
 - Docker Containers
 - Dockerfiles
-- Port mapping
 - Docker Hub
-- Docker Volumes
-- Docker Networks
-- Container logs
-- Container management
-- Common Docker commands
-
-It will be updated as I continue learning Docker and containerization.
-
----
-
-# 🚀 Next Topics
-
-Topics to add later:
-
+- Port mapping
+- Environment variables
+- Volumes
+- Networks
+- Logs
+- Debugging
 - Docker Compose
-- Multi-container applications
-- Docker Compose with Database
-- Docker networking in depth
-- Docker volumes in depth
-- Multi-stage builds
-- Docker health checks
-- Docker with FastAPI
-- Docker with Laravel
-- Docker with React / Next.js
-- Docker with CI/CD
-- Docker production best practices
+- Docker cleanup
+- Docker best practices
+
+It will be updated as I continue learning Docker, containerization, CI/CD, and software architecture.
 
 ---
 
